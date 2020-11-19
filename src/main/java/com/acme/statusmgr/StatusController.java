@@ -1,5 +1,6 @@
 package com.acme.statusmgr;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.acme.statusmgr.beans.ServerStatus;
@@ -32,9 +33,13 @@ public class StatusController {
     protected final AtomicLong counter = new AtomicLong();
 
 
-    
+    /*
+    renamed to requestHandler()
+     */
     @RequestMapping("/status")
-    public ServerStatus greeting(@RequestParam(value="name", defaultValue="Anonymous") String name) {
+    public ServerStatus requestHandler(@RequestParam(value="name", defaultValue="Anonymous") String name, @RequestParam(required = false) List<String> details) {
+        /*Debugging code for string list*/
+        System.out.println("*** DEBUG INFO ***" + details);
         return new ServerStatus(counter.incrementAndGet(),
                             String.format(template, name));
     }
