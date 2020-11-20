@@ -3,10 +3,10 @@ package com.acme.statusmgr;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
-import com.acme.statusmgr.beans.ServerStatus;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import com.acme.statusmgr.beans.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * Controller for all web/REST requests about the status of servers
@@ -37,10 +37,42 @@ public class StatusController {
     renamed to requestHandler()
      */
     @RequestMapping("/status")
-    public ServerStatus requestHandler(@RequestParam(value="name", defaultValue="Anonymous") String name, @RequestParam(required = false) List<String> details) {
+    public StatusInterface requestHandler(@RequestParam(value="name", defaultValue="Anonymous") String name, @RequestParam(required = false) List<String> details) {
         /*Debugging code for string list*/
         System.out.println("*** DEBUG INFO ***" + details);
         return new ServerStatus(counter.incrementAndGet(),
                             String.format(template, name));
     }
+
+    @RequestMapping("/status/detailed")
+    public StatusInterface detailedRequestHandler(@RequestParam(value="name", defaultValue="Anonymous") String name, @RequestParam(required = false) List<String> details) {
+        /*Debugging code for string list*/
+        System.out.println("*** DEBUG INFO ***" + details);
+        StatusInterface status = new ServerStatus(counter.incrementAndGet(), String.format(template, name));
+
+        if(details == null){
+            throw new BadRequestException();
+        }
+        for(String detail : details){
+            switch (detail) {
+                case "operations":
+                    status = new SatusOpDecorator(status);
+                    break;
+                case "extensions":
+                    status = new SatusExtDecorator(status);
+                    break;
+                case "memory":
+                    status = new SatusMemDecorator(status);
+                    break;
+                default:
+                    throw new BadRequestException();
+            }
+        }
+
+        return status;
+    }
+
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST, reason="my custom message")
+    public class BadRequestException extends RuntimeException {}
+
 }

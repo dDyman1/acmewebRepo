@@ -5,9 +5,9 @@ import com.acme.servermgr.ServerManager;
 /**
  * A POJO that represents Server Status and can be used to generate JSON for that status
  */
-public class ServerStatus {
+public class ServerStatus implements StatusInterface {
 
-    private  long id;
+    private long id;
     private String contentHeader;
     private String statusDesc = "Unknown";
 
@@ -16,8 +16,8 @@ public class ServerStatus {
      * server status from the appropriate Manager class.
      * This class must return a pretty, english-like representation of the server status.
      *
-     * @param id                a numeric identifier/counter of which request this
-     * @param contentHeader     info about the request
+     * @param id            a numeric identifier/counter of which request this
+     * @param contentHeader info about the request
      */
     public ServerStatus(long id, String contentHeader) {
         this.id = id;
@@ -31,19 +31,23 @@ public class ServerStatus {
 
     }
 
+    @Override
     public long getId() {
         return id;
     }
 
+    @Override
     public String getContentHeader() {
-
         return contentHeader;
     }
 
-
+    @Override
     public String getStatusDesc() {
         return statusDesc;
     }
 
-
+    @Override
+    public void setStatusDesc(String statusDesc) {
+        this.statusDesc = statusDesc;
+    }
 }

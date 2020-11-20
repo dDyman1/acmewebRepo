@@ -15,6 +15,7 @@
  */
 package com.acme.statusmgr;
 
+import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -49,6 +50,22 @@ public class ServerStatusControllerTests {
         this.mockMvc.perform(get("/server/status").param("name", "RebYid"))
                 .andDo(print()).andExpect(status().isOk())
                 .andExpect(jsonPath("$.contentHeader").value("Server Status requested by RebYid"));
+    }
+
+    @Test
+    public void withParamShouldReturnTailored_Name_Basic_Mem_Op() throws Exception {
+        this.mockMvc.perform(get("/server/status/detailed?details=memory,operations&name=yaakov"))
+                .andDo(print()).andExpect(status().isOk())
+                .andExpect(jsonPath("$.contentHeader").value("Server Status requested by yaakov"))
+                .andExpect(jsonPath("$.statusDesc").value("Server is up, and its memory is running low," +
+                        " and is operating normally"));
+
+    }
+
+    @Test
+    public void withBadRequestException() throws Exception {
+        this.mockMvc.perform(get("/server/status/detailed"))
+                .andDo(print()).andExpect(status().reason(is("my custom message")));
     }
 
 }
